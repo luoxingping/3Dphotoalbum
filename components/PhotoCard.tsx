@@ -2,6 +2,13 @@
 import React, { useMemo } from 'react';
 import { Photo, LayoutType } from '../types';
 
+/**
+ * 【自定义配置】
+ */
+const ZOOM_SCALE = 1.8;      // 放大倍数，默认 2.8
+const ZOOM_Z = 1300;        // 3D 推进深度，默认 1500px
+const TRANSITION_SPEED = '5000ms'; // 动画过渡速度，默认 2000ms (2秒)
+
 interface PhotoCardProps {
   photo: Photo;
   index: number;
@@ -16,24 +23,21 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, index, total, activeIndex,
   const isActive = index === activeIndex;
 
   const transformStyle = useMemo(() => {
-    // Phase: High-Impact Hero Zoom
+    // 激活状态且正在放大展示
     if (isActive && isEmphasized) {
       return {
-        // High zoom to make the photo the absolute focus
-        transform: `translateZ(1400px) rotateY(0deg) rotateX(0deg) scale(2.4)`,
+        transform: `translateZ(${ZOOM_Z}px) rotateY(0deg) rotateX(0deg) scale(${ZOOM_SCALE})`,
         opacity: 1,
         zIndex: 1000,
         filter: 'brightness(1.05) contrast(1.02)',
       };
     }
 
-    // Phase: Standard Gallery View or Background during another's emphasis
     const diff = index - activeIndex;
     const absDiff = Math.abs(diff);
-    // If emphasized, hide all other cards completely to avoid distraction
     const globalOpacity = isEmphasized ? (isActive ? 1 : 0) : 1; 
     
-    // Helper for Sphere distribution
+    // Sphere 几何计算
     const phi = Math.acos(-1 + (2 * index) / total);
     const theta = Math.sqrt(total * Math.PI) * phi;
 
@@ -124,10 +128,13 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, index, total, activeIndex,
   return (
     <div
       onClick={onClick}
-      className={`absolute top-1/2 left-1/2 -mt-[200px] -ml-[150px] w-[300px] h-[400px] cursor-pointer transition-all duration-[2000ms] cubic-bezier(0.15, 1, 0.3, 1) preserve-3d
+      className={`absolute top-1/2 left-1/2 -mt-[200px] -ml-[150px] w-[300px] h-[400px] cursor-pointer preserve-3d
         ${isActive ? 'z-50' : 'z-0'}
       `}
-      style={transformStyle as any}
+      style={{
+        ...transformStyle as any,
+        transition: `all ${TRANSITION_SPEED} cubic-bezier(0.15, 1, 0.3, 1)`
+      }}
     >
       <div className={`relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border transition-all duration-[1200ms] bg-neutral-900 group
         ${isActive 
@@ -140,14 +147,12 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, index, total, activeIndex,
           className={`w-full h-full object-cover transition-transform duration-[4000ms] ${isActive && isEmphasized ? 'scale-105' : 'scale-110'}`}
         />
         
-        {/* Breathing glow for active card */}
         {isActive && !isEmphasized && (
           <div className={`absolute inset-0 bg-rose-500/10 animate-pulse pointer-events-none`} />
         )}
 
       </div>
       
-      {/* Floor reflection logic - Hide during emphasis */}
       {['carousel', 'wall', 'stack', 'book'].includes(layout) && !isEmphasized && (
         <div 
           className="absolute -bottom-[410px] left-0 w-full h-full rounded-2xl overflow-hidden opacity-10 pointer-events-none transition-all duration-1000"
