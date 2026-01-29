@@ -3,12 +3,19 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Photo, LayoutType } from './types';
 import PhotoCard from './components/PhotoCard';
 import * as geminiService from './services/geminiService';
-import { Sparkles, ChevronLeft, ChevronRight, Info, Layout, Heart, Play, Pause, AlertCircle } from 'lucide-react';
+import { Sparkles, ChevronLeft, ChevronRight, Info, Layout, Heart, Play, Pause, AlertCircle, Music, Volume2, VolumeX } from 'lucide-react';
 
 /**
  * 【自定义配置】
  */
-const STAY_DURATION = 8000; // 相片停顿时间（毫秒），8000 = 8秒
+const STAY_DURATION = 8000; // 相片停顿时间（毫秒）
+
+/**
+ * 修改音乐背景：将下方的链接替换为您自己的 MP3 音乐直链
+ * 推荐使用：婚礼进行曲、钢琴曲或舒缓的抒情歌曲
+ */
+const BACKGROUND_MUSIC_URL = "https://assets.mixkit.co/music/preview/mixkit-wedding-waltz-242.mp3"; 
+
 const PROVIDED_PHOTO_URLS = [
   "https://s41.ax1x.com/2026/01/29/pZWoXjg.jpg",
   "https://s41.ax1x.com/2026/01/29/pZWoOgS.jpg",
@@ -17,76 +24,9 @@ const PROVIDED_PHOTO_URLS = [
   "https://s41.ax1x.com/2026/01/29/pZWoH4P.jpg",
   "https://s41.ax1x.com/2026/01/29/pZWo7Nt.jpg",
   "https://s41.ax1x.com/2026/01/29/pZWoTAI.jpg",
-  "https://s41.ax1x.com/2026/01/29/pZWoIHA.jpg",
-  "https://free.picui.cn/free/2026/01/29/697afc4bc4bbf.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc433535a.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc459ad49.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc45bdd12.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc4659495.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc4706ea5.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc47a8b10.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc49ae714.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc4aadafa.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc4af3cc4.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3b0768c.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3c992f3.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3d62632.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3d5adfa.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3e3e60c.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3f81ce1.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc4188a58.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc41d4469.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc42490e9.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc42a3f74.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc341ec05.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc345d6aa.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc34f04e7.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc366bca0.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc38341cb.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc388e845.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc38c04fe.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc398d0ee.jpg",
-"https://free.picui.cn/free/2026/01/29/697afbbf29421.jpg",
-"https://free.picui.cn/free/2026/01/29/697afbcd3c6d9.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc2c16eda.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc2c18a59.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc2c2c138.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc2c36eed.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc2c2e5d2.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc303647e.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc30368d4.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3061f73.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3084153.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc311cada.jpg",
-"https://free.picui.cn/free/2026/01/29/697afb68e3270.jpg",
-"https://free.picui.cn/free/2026/01/29/697afb69b255e.jpg",
-"https://free.picui.cn/free/2026/01/29/697afb929660b.jpg",
-"https://free.picui.cn/free/2026/01/29/697afb929ce4f.jpg",
-"https://free.picui.cn/free/2026/01/29/697afb92cd35a.jpg",
-"https://free.picui.cn/free/2026/01/29/697afba814b6e.jpg",
-"https://free.picui.cn/free/2026/01/29/697afba9774eb.jpg",
-"https://free.picui.cn/free/2026/01/29/697afba9f073f.jpg",
-"https://free.picui.cn/free/2026/01/29/697afbaa3e02b.jpg",
-"https://free.picui.cn/free/2026/01/29/697afbbc00641.jpg",
-"https://free.picui.cn/free/2026/01/29/697afbbdc7a08.jpg",
-"https://free.picui.cn/free/2026/01/29/697afbbe3b34e.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc3420c9a.jpg",
-"https://free.picui.cn/free/2026/01/29/697afc4b849ae.jpg",
-"https://free.picui.cn/free/2026/01/29/697af803ebe2b.jpg",
-"https://free.picui.cn/free/2026/01/29/697afbbf34caf.jpg",
-"https://free.picui.cn/free/2026/01/29/697af7a09771b.jpg",
-"https://free.picui.cn/free/2026/01/29/697af7a148166.jpg",
-"https://free.picui.cn/free/2026/01/29/697af7a3b1a65.jpg",
-"https://free.picui.cn/free/2026/01/29/697af7a3c0537.jpg",
-"https://free.picui.cn/free/2026/01/29/697af7a3c63e3.jpg",
-"https://free.picui.cn/free/2026/01/29/697af7ed71d79.jpg",
-"https://free.picui.cn/free/2026/01/29/697af8006a67d.jpg",
-"https://free.picui.cn/free/2026/01/29/697af802f34a6.jpg",
-"https://free.picui.cn/free/2026/01/29/697af80352b73.jpg"
-
+  "https://s41.ax1x.com/2026/01/29/pZWoIHA.jpg"
 ];
 
-// 用户提供的 30 条唯美文案
 const CHINESE_TEXTS = [
   "同心结彩——红绳系同心，今生绾做双丝网，岁岁共春芳。",
   "良辰佳偶——恰逢最好时辰，遇见最好之人，自此朝夕皆良辰。",
@@ -117,29 +57,7 @@ const CHINESE_TEXTS = [
   "盛宴欢庆——今日欢笑满堂，祝福盈耳，共庆良缘天成，佳偶同心。",
   "花韵雅姿——仿佛春芳凝于鬓边，爱是优雅绽放的永生花束。",
   "执手同行——掌心相贴的温暖，是往后余生最坚定的陪伴与勇气。",
-  "永世之约——此约既定，山海无移；时光尽头，依旧相爱如初。",
-  "璧合珠联——如星月交辉，光华中映照彼此；似宝璧相嵌，圆满里写就永恒。",
-"兰桂同心——幽兰清雅，丹桂馥郁；心魂相契，共育满庭芳馨。",
-"沧海晴舟——纵人间世事如海，有爱作舟，有彼此为帆，必抵万里晴澜。",
-"韶华同铸——将最好年华熔入同一座钟，每一声嘀嗒，都是共同记忆的回响。",
-"烛影双温——红烛映影成双，温暖交织；从此长夜有伴，明暗皆安。",
-"山海印誓——以山为证，巍然不移；以海为盟，深情不竭。",
-"云锦天章——缘分如天织云锦，每一丝相遇皆成纹样，绣出无双画卷。",
-"静好长歌——褪去繁华喧嚣，在平淡日常里谱写一首悠长的幸福之歌。",
-"梧桐春雨——如梧桐逢春雨，枝叶更滋茂；似良缘遇佳期，恩爱愈绵长。",
-"初心画卷——展开余生空白长卷，以初心为笔，以相守为墨，共绘山河明媚。",
-"明月双悬——似夜空双月相伴，清辉交融；纵有圆缺，始终守望同一片天际。",
-"寒炉暖话——冬日围炉，闲话平生；世间风雪，不及彼此眼中暖意。",
-"琴书共朝暮——晨间琴瑟和鸣，黄昏共读诗书；寻常光阴，因相伴而成雅事。",
-"连理逢春——心如连理枝，岁岁逢春发新绿；情似合欢叶，朝朝暮暮总相依。",
-"星霜不负——任凭星霜轮转，誓言如初；纵使岁月变迁，深情未改。",
-"桃源同耕——在喧嚣红尘中辟一方桃源，携手耕耘，播种四季欢喜。",
-"灯火归途——爱是长明灯火，照亮所有晚归的路；家是安心归处，永远有人等候。",
-"嘉耦天成——良缘非偶然，是三生石上旧精魂，今生终成嘉偶仙配。",
-"清风共倚——如清风与竹相伴，自然相谐；似流水与石相守，温柔坚定。",
-"光阴酿蜜——将平凡日子细细封存，以耐心等待，酿成一罐岁月的甜。"
-
-          
+  "永世之约——此约既定，山海无移；时光尽头，依旧相爱如初。"
 ];
 
 const generatePhotos = (count: number): Photo[] => {
@@ -169,9 +87,23 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [isEmphasized, setIsEmphasized] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   
   const rotationTimerRef = useRef<number | null>(null);
   const emphasisTimeoutRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const toggleMusic = () => {
+    if (!audioRef.current) return;
+    if (isMusicPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch(() => {
+        console.warn("由于浏览器安全限制，首次播放可能需要手动点击页面。");
+      });
+    }
+    setIsMusicPlaying(!isMusicPlaying);
+  };
 
   const triggerEmphasis = useCallback(() => {
     setTimeout(() => {
@@ -224,6 +156,8 @@ const App: React.FC = () => {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#050507] text-white">
+      <audio ref={audioRef} src={BACKGROUND_MUSIC_URL} loop />
+
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className={`absolute top-1/4 left-1/4 w-[1000px] h-[1000px] bg-rose-900/10 rounded-full blur-[220px] transition-all duration-2000 ${isEmphasized ? 'scale-150 opacity-60' : 'animate-pulse'}`} />
         <div className={`absolute bottom-1/4 right-1/4 w-[800px] h-[800px] bg-blue-900/10 rounded-full blur-[180px] transition-all duration-2000 ${isEmphasized ? 'scale-150 opacity-60' : 'animate-pulse'}`} />
@@ -231,15 +165,24 @@ const App: React.FC = () => {
 
       <header className={`absolute top-0 left-0 w-full p-8 md:p-12 z-50 flex justify-between items-center transition-all duration-1000 ${isEmphasized ? 'opacity-0 -translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'}`}>
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-black border border-white/10 rounded-2xl flex items-center justify-center shadow-2xl">
+          <div className="w-14 h-14 bg-black border border-white/10 rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden">
             <Heart className="w-8 h-8 text-rose-500 fill-rose-500/20" />
+            {isMusicPlaying && (
+              <div className="absolute inset-0 border-2 border-rose-500/30 rounded-2xl animate-ping" />
+            )}
           </div>
           <div>
             <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none">Wedding <span className="text-rose-400">Prism</span></h1>
+            <p className="text-[10px] text-white/40 uppercase tracking-[0.4em] font-black mt-2">Music & Visual Harmony</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 bg-white/5 backdrop-blur-2xl p-2 rounded-2xl border border-white/10 shadow-2xl">
+          <button onClick={toggleMusic} className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all ${isMusicPlaying ? 'bg-rose-500/20 text-rose-400' : 'hover:bg-white/10 text-white/60'}`}>
+            {isMusicPlaying ? <Volume2 className="w-4 h-4 animate-bounce" /> : <VolumeX className="w-4 h-4" />}
+            <span className="text-[10px] font-black uppercase tracking-widest">{isMusicPlaying ? '音乐已开启' : '播放背景音乐'}</span>
+          </button>
+          
           <button onClick={toggleLayout} className="flex items-center gap-3 px-5 py-3 rounded-xl hover:bg-white/10 transition-all">
             <Layout className="w-4 h-4 text-rose-400" />
             <span className="text-[10px] font-black uppercase tracking-widest">{layout}</span>
@@ -319,20 +262,21 @@ const App: React.FC = () => {
            <div className="max-w-4xl w-full py-20">
               <div className="flex items-start gap-4 mb-4">
                  <Heart className="w-8 h-8 text-rose-500" />
-                 <h2 className="text-7xl font-black italic tracking-tighter uppercase leading-none text-white">Prism<br/>Config</h2>
+                 <h2 className="text-7xl font-black italic tracking-tighter uppercase leading-none text-white">Music<br/>Settings</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-neutral-400 text-lg mt-12">
                 <div className="space-y-6">
-                  <h3 className="text-white font-bold text-xl">中式唯美文案库</h3>
-                  <p>系统已导入 30 条定制化婚礼文案，每张相片都配有专属的标题与深情描述，构建沉浸式的中式浪漫氛围。</p>
-                  <p>停留时间：{STAY_DURATION/1000} 秒 | 自动循环：开启</p>
+                  <h3 className="text-white font-bold text-xl">如何更换背景音乐？</h3>
+                  <p>1. 在 <code className="bg-white/10 px-2 py-1 rounded text-rose-300">App.tsx</code> 的顶部找到 <code className="text-white">BACKGROUND_MUSIC_URL</code>。</p>
+                  <p>2. 准备一个 MP3 文件链接（例如上传至云盘或服务器）。</p>
+                  <p>3. 替换该链接并保存。系统将自动加载新音轨。</p>
                 </div>
                 <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-4 text-sm">
-                  <h4 className="text-rose-400 font-black tracking-widest uppercase">存档规格</h4>
+                  <h4 className="text-rose-400 font-black tracking-widest uppercase">当前状态</h4>
                   <ul className="space-y-3 opacity-80">
-                    <li className="flex justify-between"><span>文案节点:</span> <span className="text-white">30 Unique Lyrics</span></li>
-                    <li className="flex justify-between"><span>视觉槽位:</span> <span className="text-white">100 Dynamic Slots</span></li>
-                    <li className="flex justify-between border-t border-white/10 pt-3"><span>状态:</span> <span className="text-rose-500">OPTIMIZED</span></li>
+                    <li className="flex justify-between"><span>播放状态:</span> <span className="text-white">{isMusicPlaying ? '正在播放' : '已暂停'}</span></li>
+                    <li className="flex justify-between"><span>循环模式:</span> <span className="text-white">全列表循环</span></li>
+                    <li className="flex justify-between border-t border-white/10 pt-3"><span>音质:</span> <span className="text-rose-500">HI-FI</span></li>
                   </ul>
                 </div>
               </div>
