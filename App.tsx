@@ -17,7 +17,17 @@ const PROVIDED_PHOTO_URLS = [
   "https://s41.ax1x.com/2026/01/29/pZWoH4P.jpg",
   "https://s41.ax1x.com/2026/01/29/pZWo7Nt.jpg",
   "https://s41.ax1x.com/2026/01/29/pZWoTAI.jpg",
-  "https://s41.ax1x.com/2026/01/29/pZWoIHA.jpg"
+  "https://s41.ax1x.com/2026/01/29/pZWoIHA.jpg",
+  "https://free.picui.cn/free/2026/01/29/697af7a3b1a65.jpg",
+"https://free.picui.cn/free/2026/01/29/697af7a148166.jpg",
+"https://free.picui.cn/free/2026/01/29/697af7a3c0537.jpg",
+"https://free.picui.cn/free/2026/01/29/697af7a3c63e3.jpg",
+"https://free.picui.cn/free/2026/01/29/697af7ed71d79.jpg",
+"https://free.picui.cn/free/2026/01/29/697af8006a67d.jpg",
+"https://free.picui.cn/free/2026/01/29/697af802f34a6.jpg",
+"https://free.picui.cn/free/2026/01/29/697af80352b73.jpg",
+"https://free.picui.cn/free/2026/01/29/697af7a09771b.jpg",
+"https://free.picui.cn/free/2026/01/29/697af803ebe2b.jpg"
 ];
 
 // 用户提供的 30 条唯美文案
